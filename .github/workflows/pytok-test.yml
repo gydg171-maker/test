@@ -1,14 +1,14 @@
-name: Zendriver Browser Test
+name: Zendriver Browser Debug
 
 on:
   workflow_dispatch:
 
 jobs:
-  zendriver-test:
+  zendriver-debug:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up Python 3.11
@@ -16,16 +16,30 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Chromium
+      - name: Debug Chrome
         run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium
+          echo "=== Chrome ==="
+          google-chrome --version || true
+          which google-chrome || true
 
-      - name: Install Python dependencies
+          echo "=== Chromium ==="
+          chromium --version || true
+          which chromium || true
+
+          echo "=== Processes before browser ==="
+          ps aux | grep -E "chrome|chromium" | grep -v grep || true
+
+      - name: Install Zendriver
         run: |
           python -m pip install --upgrade pip
-          python -m pip install "zendriver"
+          python -m pip install zendriver
+
+      - name: Verify Zendriver
+        run: |
+          python -c "import zendriver; print('Zendriver import OK')"
+          python -c "import importlib.metadata as m; print('Zendriver version:', m.version('zendriver'))"
 
       - name: Run Zendriver test
+        timeout-minutes: 2
         run: |
-          python test_zendriver_github.py
+          python -u test_zendriver_github.py
