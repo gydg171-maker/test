@@ -10,6 +10,8 @@ async def main():
     browser = await zd.start(
         headless=True,
         sandbox=False,
+        browser="chrome",
+        browser_executable_path="/usr/bin/google-chrome",
         browser_args=[
             "--disable-dev-shm-usage",
         ],
